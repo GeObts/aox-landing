@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AOX — Agent Opportunity Exchange</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --orange: #F7931A;
+    --orange-dim: rgba(247,147,26,0.15);
+    --orange-glow: rgba(247,147,26,0.4);
+    --dark: #080808;
+    --dark2: #0f0f0f;
+    --dark3: #161616;
+    --border: rgba(255,255,255,0.06);
+    --text: #e8e8e8;
+    --muted: #666;
+    --mono: 'Space Mono', monospace;
+    --display: 'Syne', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: var(--display);
+    min-height: 100vh;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    width: 8px; height: 8px;
+    background: var(--orange);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s ease;
+    mix-blend-mode: screen;
+  }
+  .cursor-ring {
+    width: 32px; height: 32px;
+    border: 1px solid rgba(232,80,10,0.4);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: all 0.15s ease;
+  }
+
+  /* Noise texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.4;
+  }
+
+  /* Grid background */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(247,147,26,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(247,147,26,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Nav */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 24px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    background: rgba(8,8,8,0.8);
+    backdrop-filter: blur(20px);
+  }
+
+  .nav-logo {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 20px;
+    letter-spacing: -0.02em;
+    color: white;
+  }
+  .nav-logo span { color: var(--orange); }
+
+  .nav-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+  .status-dot {
+    width: 6px; height: 6px;
+    background: #22c55e;
+    border-radius: 50%;
+    animation: pulse-green 2s infinite;
+  }
+  @keyframes pulse-green {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+    50% { opacity: 0.7; box-shadow: 0 0 0 4px rgba(34,197,94,0); }
+  }
+
+  /* Hero */
+  .hero {
+    position: relative;
+    z-index: 2;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 120px 24px 80px;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  /* Radial glow behind hero */
+  .hero-glow {
+    position: absolute;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(232,80,10,0.12) 0%, transparent 70%);
+    border-radius: 50%;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    animation: breathe 4s ease-in-out infinite;
+  }
+  @keyframes breathe {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+    50% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+  }
+
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--orange);
+    padding: 6px 16px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--orange);
+    margin-bottom: 40px;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .hero-eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.3em;
+    color: var(--orange);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    animation: fadeUp 0.8s 0.1s ease both;
+  }
+
+  .hero-title {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: clamp(52px, 8vw, 112px);
+    line-height: 0.92;
+    letter-spacing: -0.04em;
+    color: white;
+    margin-bottom: 8px;
+    animation: fadeUp 0.8s 0.2s ease both;
+  }
+  .hero-title .accent {
+    color: var(--orange);
+    position: relative;
+    display: inline-block;
+  }
+  .hero-title .accent::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0; right: 0;
+    height: 3px;
+    background: var(--orange);
+    transform: scaleX(0);
+    transform-origin: left;
+    animation: underline 1s 1s ease forwards;
+  }
+  @keyframes underline {
+    to { transform: scaleX(1); }
+  }
+
+  .hero-subtitle {
+    font-size: clamp(16px, 2vw, 22px);
+    color: var(--muted);
+    max-width: 560px;
+    line-height: 1.6;
+    margin: 32px auto 56px;
+    animation: fadeUp 0.8s 0.3s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Stats row */
+  .stats-row {
+    display: flex;
+    align-items: center;
+    gap: 48px;
+    margin-bottom: 64px;
+    animation: fadeUp 0.8s 0.4s ease both;
+  }
+  .stat {
+    text-align: center;
+  }
+  .stat-value {
+    font-family: var(--mono);
+    font-size: 28px;
+    font-weight: 700;
+    color: white;
+    display: block;
+  }
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-top: 4px;
+    display: block;
+  }
+  .stat-divider {
+    width: 1px;
+    height: 40px;
+    background: var(--border);
+  }
+
+  /* Waitlist form */
+  .waitlist-container {
+    width: 100%;
+    max-width: 520px;
+    animation: fadeUp 0.8s 0.5s ease both;
+  }
+
+  .waitlist-form {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border);
+    background: var(--dark2);
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .waitlist-form:focus-within {
+    border-color: var(--orange);
+    box-shadow: 0 0 0 1px var(--orange), 0 0 30px var(--orange-dim);
+  }
+
+  .waitlist-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 16px 20px;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: white;
+    cursor: none;
+  }
+  .waitlist-input::placeholder { color: var(--muted); }
+
+  .waitlist-btn {
+    background: var(--orange);
+    border: none;
+    padding: 16px 28px;
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    color: white;
+    cursor: none;
+    transition: all 0.2s;
+    white-space: nowrap;
+    text-transform: uppercase;
+  }
+  .waitlist-btn:hover {
+    background: #f9a94a;
+  }
+  .waitlist-btn:active { transform: scale(0.98); }
+
+  .waitlist-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 12px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .waitlist-count {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .waitlist-avatars {
+    display: flex;
+  }
+  .waitlist-avatar {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    border: 1px solid var(--dark);
+    margin-right: -6px;
+    background: var(--dark3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    color: var(--orange);
+    font-weight: 700;
+  }
+
+  /* Success state */
+  .waitlist-success {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 24px;
+    border: 1px solid rgba(34,197,94,0.3);
+    background: rgba(34,197,94,0.05);
+  }
+  .success-icon {
+    font-size: 32px;
+  }
+  .success-title {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 18px;
+    color: white;
+  }
+  .success-pos {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: #22c55e;
+  }
+  .referral-box {
+    width: 100%;
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border);
+    margin-top: 8px;
+  }
+  .referral-link {
+    flex: 1;
+    background: var(--dark3);
+    padding: 10px 14px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .referral-copy {
+    background: var(--dark3);
+    border: none;
+    border-left: 1px solid var(--border);
+    padding: 10px 16px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--orange);
+    cursor: none;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+  .referral-copy:hover { background: var(--orange-dim); }
+
+  /* Ticker */
+  .ticker {
+    position: relative;
+    z-index: 2;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: var(--dark2);
+    overflow: hidden;
+    padding: 12px 0;
+  }
+  .ticker-inner {
+    display: flex;
+    gap: 0;
+    animation: ticker 30s linear infinite;
+    white-space: nowrap;
+  }
+  .ticker-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 32px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+  .ticker-item .dot { color: var(--orange); }
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* How it works */
+  .section {
+    position: relative;
+    z-index: 2;
+    padding: 120px 48px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--orange);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: clamp(32px, 4vw, 56px);
+    letter-spacing: -0.03em;
+    color: white;
+    line-height: 1.05;
+    max-width: 600px;
+    margin-bottom: 64px;
+  }
+
+  /* Pipeline */
+  .pipeline {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .pipeline-step {
+    background: var(--dark2);
+    padding: 32px 28px;
+    position: relative;
+    transition: background 0.3s;
+  }
+  .pipeline-step:hover { background: var(--dark3); }
+  .pipeline-step::after {
+    content: '→';
+    position: absolute;
+    right: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--orange);
+    font-family: var(--mono);
+    font-size: 16px;
+    z-index: 1;
+  }
+  .pipeline-step:last-child::after { display: none; }
+
+  .step-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--orange);
+    letter-spacing: 0.2em;
+    margin-bottom: 16px;
+  }
+  .step-name {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 18px;
+    color: white;
+    margin-bottom: 8px;
+  }
+  .step-desc {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* Features */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .feature {
+    background: var(--dark2);
+    padding: 40px 36px;
+    transition: background 0.3s;
+  }
+  .feature:hover { background: var(--dark3); }
+
+  .feature-icon {
+    font-size: 28px;
+    margin-bottom: 20px;
+    display: block;
+  }
+  .feature-title {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 20px;
+    color: white;
+    margin-bottom: 12px;
+  }
+  .feature-desc {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  /* Terminal block */
+  .terminal {
+    background: var(--dark3);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    font-family: var(--mono);
+    font-size: 13px;
+    margin-top: 64px;
+  }
+  .terminal-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--dark2);
+  }
+  .terminal-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+  .t-red { background: #ff5f57; }
+  .t-yellow { background: #febc2e; }
+  .t-green { background: #28c840; }
+  .terminal-title {
+    font-size: 11px;
+    color: var(--muted);
+    margin-left: 8px;
+    letter-spacing: 0.1em;
+  }
+  .terminal-body {
+    padding: 24px;
+    line-height: 2;
+  }
+  .t-line { display: flex; gap: 12px; }
+  .t-prompt { color: var(--orange); }
+  .t-cmd { color: #e8e8e8; }
+  .t-output { color: #666; padding-left: 24px; }
+  .t-highlight { color: #22c55e; }
+  .t-cursor {
+    display: inline-block;
+    width: 8px; height: 14px;
+    background: var(--orange);
+    animation: blink 1s step-end infinite;
+    vertical-align: middle;
+    margin-left: 2px;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  /* CTA section */
+  .cta-section {
+    position: relative;
+    z-index: 2;
+    padding: 160px 48px 100px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .cta-title {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: clamp(40px, 6vw, 80px);
+    letter-spacing: -0.04em;
+    color: white;
+    line-height: 1;
+    margin-bottom: 24px;
+  }
+  .cta-title .orange { color: var(--orange); }
+
+  .cta-sub {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 48px;
+  }
+
+  /* Footer */
+  footer {
+    position: relative;
+    z-index: 2;
+    border-top: 1px solid var(--border);
+    padding: 32px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .footer-logo {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 16px;
+    color: white;
+  }
+  .footer-logo span { color: var(--orange); }
+  .footer-copy {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+  .footer-links {
+    display: flex;
+    gap: 24px;
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+  .footer-links a {
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    letter-spacing: 0.1em;
+  }
+  .footer-links a:hover { color: var(--orange); }
+
+  /* Notification */
+  .notif {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    z-index: 200;
+    background: var(--dark3);
+    border: 1px solid rgba(34,197,94,0.4);
+    padding: 16px 20px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: #22c55e;
+    transform: translateX(200px);
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+  }
+  .notif.show {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 20px 24px; }
+    .section { padding: 80px 24px; }
+    .stats-row { gap: 24px; }
+    .stat-divider { display: none; }
+    footer { flex-direction: column; gap: 16px; text-align: center; }
+    .pipeline-step::after { display: none; }
+    .hero { padding: 100px 24px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- Nav -->
+<nav>
+  <div class="nav-logo">A<span>O</span>X</div>
+  <div class="nav-status">
+    <div class="status-dot"></div>
+    AGENTS OPERATIONAL
+  </div>
+</nav>
+
+<!-- CTA — TOP -->
+<div class="cta-section">
+  <h2 class="cta-title">The agents<br>are <span class="orange">already running.</span></h2>
+  <p class="cta-sub">// JOIN THE WAITLIST — EARLY ACCESS CLOSES SOON</p>
+  <div class="waitlist-container" style="margin: 0 auto;">
+    <div class="waitlist-form">
+      <input type="email" class="waitlist-input" id="emailInput2" placeholder="your@email.com" autocomplete="off">
+      <button class="waitlist-btn" onclick="joinWaitlist2()">Get Access</button>
+    </div>
+  </div>
+</div>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-glow"></div>
+
+  <div class="hero-tag">
+    <span>◈</span> PRIVATE BETA — LIMITED ACCESS
+  </div>
+
+  <div class="hero-eyebrow">Agent Opportunity Exchange</div>
+
+  <h1 class="hero-title">
+    The Market<br>
+    <span class="accent">Doesn't Sleep.</span><br>
+    Neither Do We.
+  </h1>
+
+  <p class="hero-subtitle">
+    Autonomous AI agents that never stop hunting — discovering, verifying, and monetizing Web3 opportunities while you sleep.
+  </p>
+
+  <div class="stats-row">
+    <div class="stat">
+      <span class="stat-value" id="signalCount">0</span>
+      <span class="stat-label">Signals Scanned</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat">
+      <span class="stat-value" id="leadCount">0</span>
+      <span class="stat-label">Leads Verified</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat">
+      <span class="stat-value" id="chainCount">5</span>
+      <span class="stat-label">Chains Monitored</span>
+    </div>
+  </div>
+
+  <!-- Waitlist -->
+  <div class="waitlist-container">
+    <div id="waitlistForm">
+      <div class="waitlist-form">
+        <input type="email" class="waitlist-input" id="emailInput" placeholder="your@email.com" autocomplete="off">
+        <button class="waitlist-btn" onclick="joinWaitlist()">Get Access</button>
+      </div>
+      <div class="waitlist-meta">
+        <div class="waitlist-count">
+          <div class="waitlist-avatars">
+            <div class="waitlist-avatar">G</div>
+            <div class="waitlist-avatar">K</div>
+            <div class="waitlist-avatar">M</div>
+            <div class="waitlist-avatar">+</div>
+          </div>
+          &nbsp;<span id="waitlistNum">847</span> on the waitlist
+        </div>
+        <span>No spam. Ever.</span>
+      </div>
+    </div>
+
+    <div class="waitlist-success" id="waitlistSuccess">
+      <div class="success-icon">⬡</div>
+      <div class="success-title">You're on the list.</div>
+      <div class="success-pos" id="successPos">You're #<span id="posNum">848</span> in line</div>
+      <div style="font-family: var(--mono); font-size: 11px; color: var(--muted); margin-top: 4px;">
+        Refer friends to move up ↑
+      </div>
+      <div class="referral-box">
+        <div class="referral-link" id="referralLink">aox.vercel.app/?ref=</div>
+        <button class="referral-copy" onclick="copyRef()">COPY</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Ticker -->
+<div class="ticker">
+  <div class="ticker-inner" id="ticker">
+    <span class="ticker-item"><span class="dot">◆</span> NEW TOKEN DETECTED ON BASE</span>
+    <span class="ticker-item"><span class="dot">◆</span> NFT CONTRACT VERIFIED — SCORE 87</span>
+    <span class="ticker-item"><span class="dot">◆</span> LEAD #1043 SOLD — 25 USDC</span>
+    <span class="ticker-item"><span class="dot">◆</span> LIQUIDITY EVENT FLAGGED — $240K</span>
+    <span class="ticker-item"><span class="dot">◆</span> GITHUB REPO DETECTED — 3 CONTRIBUTORS</span>
+    <span class="ticker-item"><span class="dot">◆</span> TREASURY UPDATED — +25 USDC</span>
+    <span class="ticker-item"><span class="dot">◆</span> DEPLOYER WALLET ANALYZED — 4Y HISTORY</span>
+    <span class="ticker-item"><span class="dot">◆</span> NEW TOKEN DETECTED ON BASE</span>
+    <span class="ticker-item"><span class="dot">◆</span> NFT CONTRACT VERIFIED — SCORE 87</span>
+    <span class="ticker-item"><span class="dot">◆</span> LEAD #1043 SOLD — 25 USDC</span>
+    <span class="ticker-item"><span class="dot">◆</span> LIQUIDITY EVENT FLAGGED — $240K</span>
+    <span class="ticker-item"><span class="dot">◆</span> GITHUB REPO DETECTED — 3 CONTRIBUTORS</span>
+    <span class="ticker-item"><span class="dot">◆</span> TREASURY UPDATED — +25 USDC</span>
+    <span class="ticker-item"><span class="dot">◆</span> DEPLOYER WALLET ANALYZED — 4Y HISTORY</span>
+  </div>
+</div>
+
+<!-- Pipeline Section -->
+<div class="section">
+  <div class="section-label">// HOW IT WORKS</div>
+  <h2 class="section-title">Five agents.<br>One pipeline.<br>Zero downtime.</h2>
+
+  <div class="pipeline">
+    <div class="pipeline-step">
+      <div class="step-num">01 // SCOUT</div>
+      <div class="step-name">Detect</div>
+      <div class="step-desc">Monitors Base blockchain 24/7 for token launches, NFT deployments, and liquidity events.</div>
+    </div>
+    <div class="pipeline-step">
+      <div class="step-num">02 // RESEARCH</div>
+      <div class="step-name">Enrich</div>
+      <div class="step-desc">Finds websites, social profiles, GitHub repos, and contact channels for every signal.</div>
+    </div>
+    <div class="pipeline-step">
+      <div class="step-num">03 // SCORE</div>
+      <div class="step-name">Verify</div>
+      <div class="step-desc">Private AI scores wallet credibility, liquidity signals, and project legitimacy.</div>
+    </div>
+    <div class="pipeline-step">
+      <div class="step-num">04 // MARKET</div>
+      <div class="step-name">List</div>
+      <div class="step-desc">Qualified leads published to the marketplace with score, category, and contact count.</div>
+    </div>
+    <div class="pipeline-step">
+      <div class="step-num">05 // SETTLE</div>
+      <div class="step-name">Pay</div>
+      <div class="step-desc">Onchain settlement in ETH, USDC, USDT, or DAI. Auto-converted to USDC treasury.</div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-header">
+      <div class="terminal-dot t-red"></div>
+      <div class="terminal-dot t-yellow"></div>
+      <div class="terminal-dot t-green"></div>
+      <span class="terminal-title">aox-pipeline — live</span>
+    </div>
+    <div class="terminal-body">
+      <div class="t-line"><span class="t-prompt">scout@aox ~$</span><span class="t-cmd"> detected new contract on Base</span></div>
+      <div class="t-line t-output">→ NFT collection — 0x4a2f...c891 — block 18,432,901</div>
+      <div class="t-line"><span class="t-prompt">research@aox ~$</span><span class="t-cmd"> enriching signal</span></div>
+      <div class="t-line t-output">→ website: ✓  twitter: ✓  github: ✓  discord: ✓</div>
+      <div class="t-line"><span class="t-prompt">scoring@aox ~$</span><span class="t-cmd"> evaluating lead</span></div>
+      <div class="t-line t-output">→ wallet age: 4y  liquidity: $240k  score: <span class="t-highlight">86/100</span></div>
+      <div class="t-line"><span class="t-prompt">market@aox ~$</span><span class="t-cmd"> publishing lead #1043</span></div>
+      <div class="t-line t-output">→ category: NFT Launch  price: 25 USDC  contacts: 4</div>
+      <div class="t-line"><span class="t-prompt">settle@aox ~$</span><span class="t-cmd"> payment received</span></div>
+      <div class="t-line t-output">→ <span class="t-highlight">+25 USDC</span> — treasury updated — lead delivered<span class="t-cursor"></span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Features -->
+<div class="section" style="padding-top: 0;">
+  <div class="section-label">// WHY AOX</div>
+  <h2 class="section-title">Built different.<br>Built onchain.</h2>
+
+  <div class="features">
+    <div class="feature">
+      <span class="feature-icon">⬡</span>
+      <div class="feature-title">Fully Autonomous</div>
+      <div class="feature-desc">No human in the loop. Agents discover, score, list, and settle leads 24/7 without any manual intervention.</div>
+    </div>
+    <div class="feature">
+      <span class="feature-icon">◈</span>
+      <div class="feature-title">Onchain Trust</div>
+      <div class="feature-desc">Every agent has an ERC-8004 identity. Every transaction settles on Base. Every action is verifiable.</div>
+    </div>
+    <div class="feature">
+      <span class="feature-icon">◎</span>
+      <div class="feature-title">Private Intelligence</div>
+      <div class="feature-desc">Wallet analysis runs through private AI inference. Raw data stays off the logs. Only scores are published.</div>
+    </div>
+    <div class="feature">
+      <span class="feature-icon">⌘</span>
+      <div class="feature-title">Signal → Revenue</div>
+      <div class="feature-desc">Web3 generates millions of signals daily. AOX converts them into verified leads that buyers pay for.</div>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-logo">A<span>O</span>X</div>
+  <div class="footer-copy">© 2026 AOX — AGENT OPPORTUNITY EXCHANGE</div>
+  <div class="footer-links">
+    <a href="#">TWITTER</a>
+    <a href="#">FARCASTER</a>
+    <a href="#">DOCS</a>
+  </div>
+</footer>
+
+<!-- Notification -->
+<div class="notif" id="notif"></div>
+
+<script>
+  // Cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx + 'px';
+    cursor.style.top = my + 'px';
+  });
+
+  function animRing() {
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) *.12;
+    ring.style.left = rx + 'px';
+    ring.style.top = ry + 'px';
+    requestAnimationFrame(animRing);
+  }
+  animRing();
+
+  document.querySelectorAll('button, a, input').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      ring.style.width = '48px';
+      ring.style.height = '48px';
+      ring.style.borderColor = 'rgba(247,147,26,0.8)';
+    });
+    el.addEventListener('mouseleave', () => {
+      ring.style.width = '32px';
+      ring.style.height = '32px';
+      ring.style.borderColor = 'rgba(247,147,26,0.4)';
+    });
+  });
+
+  // Animated counters
+  function animateCount(el, target, suffix = '') {
+    let current = 0;
+    const step = target / 60;
+    const timer = setInterval(() => {
+      current += step;
+      if (current >= target) {
+        current = target;
+        clearInterval(timer);
+      }
+      el.textContent = Math.floor(current).toLocaleString() + suffix;
+    }, 16);
+  }
+
+  setTimeout(() => {
+    animateCount(document.getElementById('signalCount'), 48291);
+    animateCount(document.getElementById('leadCount'), 1043);
+  }, 600);
+
+  // Waitlist
+  let waitlistCount = 847;
+
+  function showNotif(msg) {
+    const n = document.getElementById('notif');
+    n.textContent = msg;
+    n.classList.add('show');
+    setTimeout(() => n.classList.remove('show'), 3000);
+  }
+
+  function generateRef() {
+    return Math.random().toString(36).substr(2, 8).toUpperCase();
+  }
+
+  function joinWaitlist() {
+    const email = document.getElementById('emailInput').value;
+    if (!email || !email.includes('@')) {
+      showNotif('// enter a valid email');
+      return;
+    }
+    waitlistCount++;
+    const ref = generateRef();
+    document.getElementById('posNum').textContent = waitlistCount;
+    document.getElementById('referralLink').textContent = `aox.vercel.app/?ref=${ref}`;
+    document.getElementById('waitlistNum').textContent = waitlistCount;
+    document.getElementById('waitlistForm').style.display = 'none';
+    document.getElementById('waitlistSuccess').style.display = 'flex';
+    showNotif('// access requested — you\'re on the list');
+  }
+
+  function joinWaitlist2() {
+    const email = document.getElementById('emailInput2').value;
+    if (!email || !email.includes('@')) { showNotif('// enter a valid email'); return; }
+    showNotif('// access requested — you\'re on the list');
+    document.getElementById('emailInput2').value = '';
+  }
+
+  function copyRef() {
+    const link = document.getElementById('referralLink').textContent;
+    navigator.clipboard.writeText('https://' + link).then(() => {
+      showNotif('// referral link copied');
+    });
+  }
+
+  // Enter key on input
+  document.getElementById('emailInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') joinWaitlist();
+  });
+  document.getElementById('emailInput2').addEventListener('keydown', e => {
+    if (e.key === 'Enter') joinWaitlist2();
+  });
+</script>
+</body>
+</html>
