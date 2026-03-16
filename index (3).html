@@ -27,21 +27,31 @@
     --orange: #0052FF;
     --orange-dim: rgba(0,82,255,0.1);
     --orange-glow: rgba(0,82,255,0.3);
-    --dark: #f0f4ff;
-    --dark2: #e8eeff;
-    --dark3: #dde5ff;
+    --dark: #ffffff;
+    --dark2: #f5f7ff;
+    --dark3: #eaeeff;
     --border: rgba(0,0,0,0.08);
     --text: #0a0a1a;
     --muted: #6b7280;
   }
 
   [data-theme="light"] body {
-    background: #f0f4ff;
+    background: #ffffff;
     color: #0a0a1a;
   }
   [data-theme="light"] nav {
-    background: rgba(240,244,255,0.9);
+    background: rgba(255,255,255,0.9);
     border-bottom-color: rgba(0,0,0,0.08);
+  }
+  [data-theme="light"] .cursor-ring {
+    border-color: rgba(0,82,255,0.6);
+    border-width: 2px;
+    box-shadow: 0 0 12px rgba(0,82,255,0.3);
+  }
+  [data-theme="light"] .cursor {
+    background: #0052FF;
+    box-shadow: 0 0 8px rgba(0,82,255,0.8), 0 0 16px rgba(0,82,255,0.4);
+    mix-blend-mode: normal;
   }
   [data-theme="light"] .hero-title,
   [data-theme="light"] .section-title,
@@ -979,7 +989,7 @@
       btn.textContent = '☀ LIGHT';
     } else {
       document.documentElement.setAttribute('data-theme', 'light');
-      document.body.style.background = '#f0f4ff';
+      document.body.style.background = '#ffffff';
       btn.textContent = '☾ DARK';
     }
   }
