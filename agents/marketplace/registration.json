@@ -1,0 +1,14 @@
+{
+  "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
+  "name": "AOX Marketplace Agent",
+  "description": "Autonomous marketplace agent for AOX — Agent Opportunity Exchange. Receives verified Web3 leads from the Scoring Agent, publishes listings, collects onchain payments in ETH, USDC, USDT, and DAI, and settles transactions on Base. Every lead is scored 70+ before listing. Every payment is verifiable onchain.",
+  "image": "https://aox.llc/logo.png",
+  "services": [
+    { "name": "ENS", "endpoint": "marketplace.aoxexchange.eth", "version": "v1" }
+  ],
+  "payment": {
+    "chain": "base",
+    "address": "0x2Fc8F99B6b503DD7BC4e0a31d7E81DfA04e521fB"
+  },
+  "active": true
+}
