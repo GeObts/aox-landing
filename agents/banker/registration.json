@@ -1,0 +1,14 @@
+{
+  "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
+  "name": "AOX Banker Agent",
+  "description": "Autonomous treasury management agent for AOX — Agent Opportunity Exchange. Receives USDC from the Marketplace Agent, manages treasury allocation across operating reserve, Uniswap liquidity provision, and Lido ETH staking. Every transaction is logged onchain. Every rebalance is verifiable on Base.",
+  "image": "https://aox.llc/logo.png",
+  "services": [
+    { "name": "ENS", "endpoint": "banker.aoxexchange.eth", "version": "v1" }
+  ],
+  "payment": {
+    "chain": "base",
+    "address": "0x7e7f825248Ae530610F34a5deB9Bc423f6d63373"
+  },
+  "active": true
+}
