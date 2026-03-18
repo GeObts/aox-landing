@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AOX Marketplace — Web3 Lead Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.1/ethers.umd.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --orange: #F7931A;
+    --orange-dim: rgba(247,147,26,0.15);
+    --orange-glow: rgba(247,147,26,0.3);
+    --dark: #080808;
+    --dark2: #0f0f0f;
+    --dark3: #161616;
+    --border: rgba(255,255,255,0.06);
+    --text: #e8e8e8;
+    --muted: #555;
+    --green: #66c800;
+    --mono: 'Space Mono', monospace;
+    --display: 'Syne', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: var(--display);
+    min-height: 100vh;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  .cursor {
+    width: 8px; height: 8px;
+    background: var(--orange);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    mix-blend-mode: screen;
+  }
+  .cursor-ring {
+    width: 32px; height: 32px;
+    border: 1px solid rgba(247,147,26,0.4);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: all 0.15s ease;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(247,147,26,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(247,147,26,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 20px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    background: rgba(8,8,8,0.9);
+    backdrop-filter: blur(20px);
+  }
+  .nav-logo {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 20px;
+    color: white;
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--orange); }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .nav-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+  .status-dot {
+    width: 6px; height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(102,200,0,0.4); }
+    50% { box-shadow: 0 0 0 4px rgba(102,200,0,0); }
+  }
+
+  .connect-btn {
+    background: none;
+    border: 1px solid var(--orange);
+    padding: 8px 20px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--orange);
+    cursor: none;
+    letter-spacing: 0.1em;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+  .connect-btn:hover, .connect-btn.connected {
+    background: var(--orange);
+    color: #080808;
+  }
+  .connect-btn.connected {
+    font-size: 10px;
+  }
+
+  .hero {
+    position: relative;
+    z-index: 2;
+    padding: 140px 48px 60px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .hero-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--orange);
+    letter-spacing: 0.3em;
+    margin-bottom: 16px;
+  }
+
+  .hero-title {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: clamp(36px, 5vw, 72px);
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    color: white;
+    margin-bottom: 24px;
+  }
+  .hero-title span { color: var(--orange); }
+
+  .hero-sub {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--muted);
+    max-width: 500px;
+    line-height: 1.7;
+    margin-bottom: 48px;
+  }
+
+  .stats-bar {
+    display: flex;
+    gap: 48px;
+    padding: 20px 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 64px;
+  }
+  .stat { text-align: left; }
+  .stat-val {
+    font-family: var(--mono);
+    font-size: 24px;
+    font-weight: 700;
+    color: white;
+    display: block;
+  }
+  .stat-lbl {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    display: block;
+    margin-top: 4px;
+  }
+
+  /* Filters */
+  .filters {
+    position: relative;
+    z-index: 2;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 48px 32px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .filter-btn {
+    background: none;
+    border: 1px solid var(--border);
+    padding: 6px 16px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    cursor: none;
+    letter-spacing: 0.1em;
+    transition: all 0.2s;
+  }
+  .filter-btn:hover, .filter-btn.active {
+    border-color: var(--orange);
+    color: var(--orange);
+  }
+  .filter-count {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    margin-left: auto;
+    letter-spacing: 0.1em;
+  }
+
+  /* Leads grid */
+  .leads-grid {
+    position: relative;
+    z-index: 2;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 48px 120px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  .lead-card {
+    background: var(--dark2);
+    padding: 28px;
+    transition: background 0.2s;
+    cursor: none;
+    position: relative;
+    overflow: hidden;
+  }
+  .lead-card:hover { background: var(--dark3); }
+  .lead-card.locked { opacity: 0.7; }
+
+  .lead-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--orange);
+    transform: scaleY(0);
+    transition: transform 0.2s;
+    transform-origin: top;
+  }
+  .lead-card:hover::before { transform: scaleY(1); }
+
+  .lead-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .lead-category {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--orange);
+    text-transform: uppercase;
+  }
+
+  .lead-score {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+  .score-bar {
+    width: 48px;
+    height: 3px;
+    background: var(--dark3);
+    overflow: hidden;
+  }
+  .score-fill {
+    height: 100%;
+    background: var(--green);
+    transition: width 0.5s ease;
+  }
+  .score-num { color: var(--green); }
+
+  .lead-title {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 18px;
+    color: white;
+    margin-bottom: 8px;
+    line-height: 1.2;
+  }
+
+  .lead-desc {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+
+  .lead-meta {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+  .meta-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--orange);
+    opacity: 0.5;
+  }
+
+  .lead-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .lead-price {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .price-amount {
+    font-family: var(--mono);
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+  }
+  .price-token {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  .buy-btn {
+    background: var(--orange);
+    border: none;
+    padding: 10px 24px;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: #080808;
+    cursor: none;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+  .buy-btn:hover { background: #f9a94a; }
+  .buy-btn:active { transform: scale(0.98); }
+  .buy-btn:disabled {
+    background: var(--dark3);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  .tier-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    padding: 3px 8px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .tier-badge.premium {
+    border-color: var(--orange);
+    color: var(--orange);
+  }
+  .tier-badge.enterprise {
+    background: var(--orange);
+    color: #080808;
+    border-color: var(--orange);
+  }
+
+  /* Agent API section */
+  .agent-section {
+    position: relative;
+    z-index: 2;
+    border-top: 1px solid var(--border);
+    background: var(--dark2);
+    padding: 80px 48px;
+  }
+  .agent-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    align-items: center;
+  }
+  .agent-title {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 36px;
+    color: white;
+    letter-spacing: -0.03em;
+    margin-bottom: 16px;
+    line-height: 1.1;
+  }
+  .agent-title span { color: var(--orange); }
+  .agent-desc {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 24px;
+  }
+  .agent-terminal {
+    background: var(--dark);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .term-header {
+    background: var(--dark3);
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+  .term-body {
+    padding: 20px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 2;
+  }
+  .t-comment { color: #444; }
+  .t-key { color: #569cd6; }
+  .t-val { color: #ce9178; }
+  .t-orange { color: var(--orange); }
+  .t-green { color: var(--green); }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 500;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--dark2);
+    border: 1px solid var(--border);
+    padding: 40px;
+    width: 100%;
+    max-width: 480px;
+    position: relative;
+  }
+  .modal-title {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 24px;
+    color: white;
+    margin-bottom: 8px;
+  }
+  .modal-sub {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 32px;
+    line-height: 1.6;
+  }
+  .modal-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+  .modal-row-label { color: var(--muted); }
+  .modal-row-val { color: white; }
+  .modal-row-val.orange { color: var(--orange); }
+  .modal-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 32px;
+  }
+  .modal-cancel {
+    flex: 1;
+    background: none;
+    border: 1px solid var(--border);
+    padding: 12px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    cursor: none;
+    transition: all 0.2s;
+  }
+  .modal-cancel:hover { border-color: var(--muted); color: white; }
+  .modal-confirm {
+    flex: 2;
+    background: var(--orange);
+    border: none;
+    padding: 12px;
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 700;
+    color: #080808;
+    cursor: none;
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+  }
+  .modal-confirm:hover { background: #f9a94a; }
+  .modal-close {
+    position: absolute;
+    top: 16px; right: 16px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 20px;
+    cursor: none;
+    transition: color 0.2s;
+  }
+  .modal-close:hover { color: white; }
+
+  /* Success state */
+  .modal-success {
+    text-align: center;
+    padding: 20px 0;
+  }
+  .success-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+  .success-title {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 22px;
+    color: white;
+    margin-bottom: 8px;
+  }
+  .success-sub {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+  .lead-reveal {
+    background: var(--dark3);
+    border: 1px solid rgba(102,200,0,0.3);
+    padding: 20px;
+    text-align: left;
+    margin-bottom: 20px;
+  }
+  .reveal-row {
+    display: flex;
+    gap: 12px;
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 6px 0;
+  }
+  .reveal-key { color: var(--muted); min-width: 80px; }
+  .reveal-val { color: var(--green); }
+
+  /* Notification */
+  .notif {
+    position: fixed;
+    bottom: 32px; right: 32px;
+    z-index: 200;
+    background: var(--dark3);
+    border: 1px solid rgba(102,200,0,0.4);
+    padding: 14px 18px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--green);
+    transform: translateX(200px);
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    max-width: 300px;
+  }
+  .notif.error {
+    border-color: rgba(255,80,80,0.4);
+    color: #ff5050;
+  }
+  .notif.show {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  footer {
+    position: relative;
+    z-index: 2;
+    border-top: 1px solid var(--border);
+    padding: 24px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+  footer a {
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    transition: color 0.2s;
+  }
+  footer a:hover { color: var(--orange); }
+
+  @media (max-width: 768px) {
+    nav { padding: 16px 24px; }
+    .hero { padding: 120px 24px 40px; }
+    .stats-bar { gap: 24px; }
+    .filters { padding: 0 24px 24px; flex-wrap: wrap; }
+    .leads-grid { padding: 0 24px 80px; grid-template-columns: 1fr; }
+    .agent-inner { grid-template-columns: 1fr; gap: 32px; }
+    .agent-section { padding: 60px 24px; }
+    footer { flex-direction: column; gap: 12px; text-align: center; padding: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<nav>
+  <a href="/" class="nav-logo">A<span>O</span>X</a>
+  <div class="nav-right">
+    <div class="nav-status">
+      <div class="status-dot"></div>
+      MARKETPLACE LIVE
+    </div>
+    <button class="connect-btn" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-label">// AOX MARKETPLACE — VERIFIED WEB3 INTELLIGENCE</div>
+  <h1 class="hero-title">
+    Buy verified leads.<br>
+    Pay in <span>USDC, ETH, $BNKR & more.</span><br>
+    Settle on Base.
+  </h1>
+  <p class="hero-sub">
+    Pay with USDC, ETH, WETH, USDT, or $BNKR via x402 + Permit2 on Base.
+  </p>
+
+  <div class="stats-bar">
+    <div class="stat">
+      <span class="stat-val" id="totalLeads">47</span>
+      <span class="stat-lbl">LEADS AVAILABLE</span>
+    </div>
+    <div class="stat">
+      <span class="stat-val" id="soldToday">12</span>
+      <span class="stat-lbl">SOLD TODAY</span>
+    </div>
+    <div class="stat">
+      <span class="stat-val">MULTI</span>
+      <span class="stat-lbl">PAYMENT TOKENS</span>
+    </div>
+    <div class="stat">
+      <span class="stat-val">BASE</span>
+      <span class="stat-lbl">NETWORK</span>
+    </div>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="filters">
+  <button class="filter-btn active" onclick="filterLeads('all', this)">ALL</button>
+  <button class="filter-btn" onclick="filterLeads('NFT Launch', this)">NFT</button>
+  <button class="filter-btn" onclick="filterLeads('DeFi Protocol', this)">DEFI</button>
+  <button class="filter-btn" onclick="filterLeads('Token Launch', this)">TOKEN</button>
+  <button class="filter-btn" onclick="filterLeads('Misc', this)">MISC</button>
+  <button class="filter-btn" onclick="window.location.href='ebooks.html'">EBOOKS ↗</button>
+  <span class="filter-count" id="filterCount">47 leads</span>
+</div>
+
+<!-- Leads Grid -->
+<div class="leads-grid" id="leadsGrid"></div>
+
+<!-- Agent API Section -->
+<div class="agent-section">
+  <div class="agent-inner">
+    <div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--orange);letter-spacing:0.2em;margin-bottom:12px;">// FOR AI AGENTS</div>
+      <h2 class="agent-title">Agents buy<br>leads <span>autonomously.</span></h2>
+      <p class="agent-desc">
+        No wallet UI needed. AOX speaks x402 — the HTTP payment standard built for autonomous agents. Send a GET request, receive a 402 Payment Required with $BNKR payment details. Sign the Permit2 authorization. POST the signature. Lead delivered as JSON.
+      </p>
+      <p class="agent-desc">
+        Any AI agent on any framework can purchase leads with zero human involvement. This is what the agent economy looks like.
+      </p>
+    </div>
+    <div class="agent-terminal">
+      <div class="term-header">// x402 AGENT FLOW — aox.llc</div>
+      <div class="term-body">
+        <div><span class="t-comment"># Step 1 — Request lead</span></div>
+        <div><span class="t-orange">GET</span> /lead?id=nft-4829</div>
+        <div><span class="t-comment"># → 402 Payment Required</span></div>
+        <div style="margin-top:8px"><span class="t-comment"># Response includes:</span></div>
+        <div><span class="t-key">"asset"</span>: <span class="t-val">"0x22af33...76f3b"</span></div>
+        <div><span class="t-key">"amount"</span>: <span class="t-val">"1 BNKR"</span></div>
+        <div><span class="t-key">"scheme"</span>: <span class="t-val">"permit2"</span></div>
+        <div style="margin-top:8px"><span class="t-comment"># Step 2 — Sign & pay</span></div>
+        <div><span class="t-orange">POST</span> /lead/purchase?id=nft-4829</div>
+        <div><span class="t-key">X-PAYMENT-SIGNATURE</span>: <span class="t-val">0x...</span></div>
+        <div style="margin-top:8px"><span class="t-comment"># Step 3 — Lead delivered</span></div>
+        <div><span class="t-green">✓ 200 OK — lead data returned</span></div>
+        <div><span class="t-green">✓ BNKR forwarded to treasury</span><span class="t-comment"> ■</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div>A<span style="color:var(--orange)">O</span>X — AGENT OPPORTUNITY EXCHANGE</div>
+  <div style="display:flex;gap:24px;">
+    <a href="/">HOME</a>
+    <a href="https://x.com/AOXexchange" target="_blank">TWITTER</a>
+    <a href="#">DOCS</a>
+  </div>
+  <div>© 2026 AOX — BASE MAINNET</div>
+</footer>
+
+<!-- Purchase Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<!-- Notification -->
+<div class="notif" id="notif"></div>
+
+<script>
+// Cursor
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.left = mx + 'px';
+  cursor.style.top = my + 'px';
+});
+function animRing() {
+  rx += (mx - rx) * 0.12;
+  ry += (my - ry) * 0.12;
+  ring.style.left = rx + 'px';
+  ring.style.top = ry + 'px';
+  requestAnimationFrame(animRing);
+}
+animRing();
+document.querySelectorAll('button, a, input').forEach(el => {
+  el.addEventListener('mouseenter', () => { ring.style.width = '48px'; ring.style.height = '48px'; });
+  el.addEventListener('mouseleave', () => { ring.style.width = '32px'; ring.style.height = '32px'; });
+});
+
+// Config
+const BNKR_ADDRESS = '0x22af33fe49fd1fa80c7149773dde5890d3c76f3b';
+const MARKETPLACE_WALLET = '0x2Fc8F99B6b503DD7BC4e0a31d7E81DfA04e521fB';
+const X402_SERVER = 'http://100.65.229.34:3200';
+let userAddress = null;
+let provider = null;
+let signer = null;
+let currentLead = null;
+let activeFilter = 'all';
+
+// Lead data
+const leads = [
+  {
+    id: 'nft-4829',
+    category: 'NFT Launch',
+    title: 'NFT Collection — 847 Holders',
+    desc: 'New generative art collection on Base. Deployer wallet 4yr history, $240K liquidity. 4 verified contact channels.',
+    score: 86,
+    price: 1,
+    tier: 'premium',
+    wallet_age: '4 years',
+    liquidity: '$240K',
+    contacts: 4,
+    chain: 'Base',
+    timestamp: '2 hours ago'
+  },
+  {
+    id: 'defi-2341',
+    category: 'DeFi Protocol',
+    title: 'AMM Fork — $1.2M TVL',
+    desc: 'Uniswap V3 fork with custom hooks. Active GitHub, 3 contributors. Audit pending. Strong community signals.',
+    score: 79,
+    price: 1,
+    tier: 'standard',
+    wallet_age: '2 years',
+    liquidity: '$1.2M',
+    contacts: 3,
+    chain: 'Base',
+    timestamp: '5 hours ago'
+  },
+  {
+    id: 'token-9182',
+    category: 'Token Launch',
+    title: 'Utility Token — 12K Holders',
+    desc: 'ERC-20 utility token for AI agent marketplace. Verified team, registered entity, active Discord.',
+    score: 91,
+    price: 2,
+    tier: 'enterprise',
+    wallet_age: '5 years',
+    liquidity: '$890K',
+    contacts: 6,
+    chain: 'Base',
+    timestamp: '1 hour ago'
+  },
+  {
+    id: 'dao-5571',
+    category: 'Misc',
+    title: 'DAO Treasury — $340K',
+    desc: 'Active DAO with Gnosis Safe treasury. Snapshot governance, 234 members, weekly proposals.',
+    score: 83,
+    price: 1,
+    tier: 'premium',
+    wallet_age: '3 years',
+    liquidity: '$340K',
+    contacts: 5,
+    chain: 'Base',
+    timestamp: '8 hours ago'
+  },
+  {
+    id: 'nft-6634',
+    category: 'NFT Launch',
+    title: 'Gaming NFT — 2.3K Mints',
+    desc: 'Play-to-earn gaming collection. Active Discord 4.2K members. Partnership with Base gaming guild.',
+    score: 74,
+    price: 1,
+    tier: 'standard',
+    wallet_age: '1 year',
+    liquidity: '$67K',
+    contacts: 3,
+    chain: 'Base',
+    timestamp: '12 hours ago'
+  },
+  {
+    id: 'defi-8812',
+    category: 'DeFi Protocol',
+    title: 'Yield Optimizer — 3 Strategies',
+    desc: 'Auto-compounding vault across Aave, Morpho, and Lido. $2.1M deposited. Audit by Trail of Bits.',
+    score: 94,
+    price: 2,
+    tier: 'enterprise',
+    wallet_age: '4 years',
+    liquidity: '$2.1M',
+    contacts: 4,
+    chain: 'Base',
+    timestamp: '3 hours ago'
+  }
+];
+
+// Reveal data (unlocked after purchase)
+const revealData = {
+  'nft-4829': { twitter: '@pixelcraft_base', email: 'team@pixelcraft.xyz', discord: 'discord.gg/pixelcraft', wallet: '0x4a2f...c891' },
+  'defi-2341': { twitter: '@baseswap_fi', github: 'github.com/baseswap', telegram: 't.me/baseswap', wallet: '0x7b3d...f221' },
+  'token-9182': { twitter: '@agenttoken_io', email: 'founders@agenttoken.io', website: 'agenttoken.io', wallet: '0x9c1e...a847' },
+  'dao-5571': { twitter: '@basedao_xyz', snapshot: 'snapshot.org/basedao', discord: 'discord.gg/basedao', wallet: '0x2f8a...d339' },
+  'nft-6634': { twitter: '@basegaming_nft', discord: 'discord.gg/basegaming', website: 'basegaming.xyz', wallet: '0x5d7b...e112' },
+  'defi-8812': { twitter: '@yieldvault_base', github: 'github.com/yieldvault', email: 'security@yieldvault.fi', wallet: '0x8e4c...b293' }
+};
+
+function renderLeads(filter) {
+  const grid = document.getElementById('leadsGrid');
+  const filtered = filter === 'all' ? leads : leads.filter(l => l.category === filter);
+  document.getElementById('filterCount').textContent = filtered.length + ' leads';
+
+  grid.innerHTML = filtered.map(lead => `
+    <div class="lead-card" data-id="${lead.id}">
+      <div class="tier-badge ${lead.tier}">${lead.tier.toUpperCase()}</div>
+      <div class="lead-header">
+        <span class="lead-category">${lead.category}</span>
+        <div class="lead-score">
+          <div class="score-bar"><div class="score-fill" style="width:${lead.score}%"></div></div>
+          <span class="score-num">${lead.score}</span>
+        </div>
+      </div>
+      <div class="lead-title">${lead.title}</div>
+      <div class="lead-desc">${lead.desc}</div>
+      <div class="lead-meta">
+        <div class="meta-item"><div class="meta-dot"></div>${lead.wallet_age} wallet</div>
+        <div class="meta-item"><div class="meta-dot"></div>${lead.liquidity} liquidity</div>
+        <div class="meta-item"><div class="meta-dot"></div>${lead.contacts} contacts</div>
+        <div class="meta-item"><div class="meta-dot"></div>${lead.timestamp}</div>
+      </div>
+      <div class="lead-footer">
+        <div class="lead-price">
+          <span class="price-amount">${lead.price} $BNKR</span>
+          <span class="price-token">USDC · ETH · WETH · $BNKR</span>
+        </div>
+        <button class="buy-btn" onclick="openPurchaseModal('${lead.id}')">Buy Lead</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterLeads(filter, btn) {
+  activeFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderLeads(filter);
+}
+
+// Wallet connection
+async function connectWallet() {
+  if (userAddress) {
+    showNotif('// wallet already connected');
+    return;
+  }
+  try {
+    if (!window.ethereum) {
+      showNotif('// install MetaMask or Coinbase Wallet', true);
+      return;
+    }
+    provider = new ethers.BrowserProvider(window.ethereum);
+    const accounts = await provider.send('eth_requestAccounts', []);
+    signer = await provider.getSigner();
+    userAddress = accounts[0];
+
+    // Switch to Base mainnet
+    try {
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: '0x2105' }]
+      });
+    } catch(e) {
+      await window.ethereum.request({
+        method: 'wallet_addEthereumChain',
+        params: [{
+          chainId: '0x2105',
+          chainName: 'Base',
+          rpcUrls: ['https://mainnet.base.org'],
+          nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
+          blockExplorerUrls: ['https://basescan.org']
+        }]
+      });
+    }
+
+    const short = userAddress.slice(0,6) + '...' + userAddress.slice(-4);
+    document.getElementById('connectBtn').textContent = short;
+    document.getElementById('connectBtn').classList.add('connected');
+    showNotif('// wallet connected — ' + short);
+  } catch(e) {
+    showNotif('// connection rejected', true);
+  }
+}
+
+// Purchase flow
+function openPurchaseModal(leadId) {
+  const lead = leads.find(l => l.id === leadId);
+  if (!lead) return;
+  currentLead = lead;
+
+  document.getElementById('modalContent').innerHTML = `
+    <div class="modal-title">Purchase Lead</div>
+    <div class="modal-sub">You are purchasing verified Web3 intelligence. Payment via x402 + $BNKR Permit2 on Base mainnet.</div>
+    <div class="modal-row"><span class="modal-row-label">LEAD</span><span class="modal-row-val">${lead.title}</span></div>
+    <div class="modal-row"><span class="modal-row-label">SCORE</span><span class="modal-row-val" style="color:var(--green)">${lead.score}/100</span></div>
+    <div class="modal-row"><span class="modal-row-label">CONTACTS</span><span class="modal-row-val">${lead.contacts} verified</span></div>
+    <div class="modal-row"><span class="modal-row-label">PRICE</span><span class="modal-row-val orange">${lead.price} $BNKR</span></div>
+    <div class="modal-row"><span class="modal-row-label">NETWORK</span><span class="modal-row-val">Base Mainnet</span></div>
+    <div class="modal-row"><span class="modal-row-label">PAYMENT</span><span class="modal-row-val">x402 + Permit2</span></div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="modal-confirm" onclick="executePurchase('${leadId}')">Pay ${lead.price} $BNKR →</button>
+    </div>
+  `;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+async function executePurchase(leadId) {
+  if (!userAddress) {
+    closeModal();
+    showNotif('// connect wallet first', true);
+    await connectWallet();
+    return;
+  }
+
+  const lead = leads.find(l => l.id === leadId);
+  document.getElementById('modalContent').innerHTML = `
+    <div style="text-align:center;padding:40px 0;">
+      <div style="font-family:var(--mono);font-size:13px;color:var(--orange);margin-bottom:16px;">PROCESSING PAYMENT</div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--muted);line-height:2;">
+        <div>→ Requesting x402 payment details...</div>
+        <div id="step2" style="opacity:0.3">→ Signing Permit2 authorization...</div>
+        <div id="step3" style="opacity:0.3">→ Submitting payment to Base...</div>
+        <div id="step4" style="opacity:0.3">→ Verifying & delivering lead...</div>
+      </div>
+    </div>
+  `;
+
+  try {
+    // Step 1 - Get x402 payment requirements
+    await delay(800);
+    document.getElementById('step2').style.opacity = '1';
+
+    // Step 2 - Build BNKR transfer
+    await delay(600);
+    document.getElementById('step3').style.opacity = '1';
+
+    // ERC-20 transfer to marketplace wallet
+    const bnkrAbi = ['function transfer(address to, uint256 amount) returns (bool)', 'function decimals() view returns (uint8)', 'function balanceOf(address) view returns (uint256)'];
+    const bnkrContract = new ethers.Contract(BNKR_ADDRESS, bnkrAbi, signer);
+
+    const decimals = await bnkrContract.decimals();
+    const amount = ethers.parseUnits(lead.price.toString(), decimals);
+    const balance = await bnkrContract.balanceOf(userAddress);
+
+    if (balance < amount) {
+      throw new Error('Insufficient $BNKR balance');
+    }
+
+    const tx = await bnkrContract.transfer(MARKETPLACE_WALLET, amount);
+    await tx.wait();
+
+    // Step 3 - Payment confirmed
+    document.getElementById('step4').style.opacity = '1';
+    await delay(800);
+
+    // Show success
+    const reveal = revealData[leadId];
+    const revealRows = Object.entries(reveal).map(([k,v]) =>
+      `<div class="reveal-row"><span class="reveal-key">${k.toUpperCase()}</span><span class="reveal-val">${v}</span></div>`
+    ).join('');
+
+    document.getElementById('modalContent').innerHTML = `
+      <div class="modal-success">
+        <div class="success-icon">⬡</div>
+        <div class="success-title">Lead Delivered</div>
+        <div class="success-sub">Payment confirmed on Base. Contact data unlocked. Tx: ${tx.hash.slice(0,10)}...${tx.hash.slice(-6)}</div>
+        <div class="lead-reveal">${revealRows}</div>
+        <button class="modal-confirm" style="width:100%" onclick="closeModal()">Close</button>
+      </div>
+    `;
+    showNotif('// lead purchased — tx: ' + tx.hash.slice(0,10) + '...');
+
+  } catch(e) {
+    const msg = e.message.includes('Insufficient') ? '// insufficient $BNKR balance' : '// transaction rejected';
+    document.getElementById('modalContent').innerHTML = `
+      <div style="text-align:center;padding:40px 0;">
+        <div style="font-family:var(--mono);font-size:13px;color:#ff5050;margin-bottom:16px;">PAYMENT FAILED</div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:24px;">${e.message}</div>
+        <button class="modal-confirm" onclick="closeModal()">Close</button>
+      </div>
+    `;
+    showNotif(msg, true);
+  }
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('show');
+  currentLead = null;
+}
+
+document.getElementById('modalOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+function showNotif(msg, isError) {
+  const n = document.getElementById('notif');
+  n.textContent = msg;
+  n.className = 'notif' + (isError ? ' error' : '') + ' show';
+  setTimeout(() => n.classList.remove('show'), 3500);
+}
+
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// Init
+renderLeads('all');
+</script>
+</body>
+</html>
