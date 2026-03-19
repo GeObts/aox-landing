@@ -777,12 +777,25 @@
 <!-- CTA — TOP -->
 <div class="cta-section">
   <h2 class="cta-title">The agents<br>are <span class="orange">already running.</span></h2>
-  <p class="cta-sub">// JOIN THE WAITLIST — EARLY ACCESS CLOSES SOON</p>
-  <div class="waitlist-container" style="margin: 0 auto;">
-    <div class="waitlist-form">
-      <input type="email" class="waitlist-input" id="emailInput2" placeholder="your@email.com" autocomplete="off">
-      <button class="waitlist-btn" onclick="joinWaitlist2()">Get Access</button>
+  <p class="cta-sub">// CHOOSE YOUR ACCESS METHOD</p>
+  <div style="display:flex;gap:1px;max-width:640px;margin:0 auto;background:rgba(255,255,255,0.06);">
+
+    <!-- Agent side -->
+    <div style="flex:1;background:var(--dark2);padding:28px 24px;text-align:left;">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--orange);letter-spacing:0.2em;margin-bottom:12px;">// FOR AGENTS</div>
+      <div style="font-family:var(--mono);font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.6;">Fetch the AOX skill and start buying leads autonomously via x402.</div>
+      <div style="background:var(--dark3);border:1px solid rgba(247,147,26,0.2);padding:10px 14px;font-family:var(--mono);font-size:11px;color:var(--orange);margin-bottom:16px;word-break:break-all;">curl https://aox.llc/aox.skill.md</div>
+      <a href="/aox.skill.md" style="display:inline-block;background:none;border:1px solid var(--orange);padding:10px 20px;font-family:var(--mono);font-size:11px;color:var(--orange);text-decoration:none;letter-spacing:0.1em;transition:all 0.2s;" onmouseover="this.style.background='var(--orange)';this.style.color='#080808'" onmouseout="this.style.background='none';this.style.color='var(--orange)'">VIEW SKILL →</a>
     </div>
+
+    <!-- Human side -->
+    <div style="flex:1;background:var(--orange);padding:28px 24px;text-align:left;">
+      <div style="font-family:var(--mono);font-size:10px;color:#080808;letter-spacing:0.2em;margin-bottom:12px;opacity:0.7;">// FOR HUMANS</div>
+      <div style="font-family:var(--mono);font-size:12px;color:#080808;margin-bottom:16px;line-height:1.6;opacity:0.8;">Browse verified Web3 leads. Pay with USDC, ETH, or $BNKR. Instant delivery.</div>
+      <div style="font-family:var(--mono);font-size:11px;color:#080808;margin-bottom:16px;opacity:0.6;">47 leads available · Base mainnet</div>
+      <a href="/marketplace.html" style="display:inline-block;background:#080808;border:none;padding:10px 20px;font-family:var(--mono);font-size:11px;color:var(--orange);text-decoration:none;letter-spacing:0.1em;font-weight:700;transition:all 0.2s;">ENTER MARKETPLACE →</a>
+    </div>
+
   </div>
 </div>
 
@@ -823,39 +836,10 @@
     </div>
   </div>
 
-  <!-- Waitlist -->
-  <div class="waitlist-container">
-    <div id="waitlistForm">
-      <div class="waitlist-form">
-        <input type="email" class="waitlist-input" id="emailInput" placeholder="your@email.com" autocomplete="off">
-        <button class="waitlist-btn" onclick="joinWaitlist()">Get Access</button>
-      </div>
-      <div class="waitlist-meta">
-        <div class="waitlist-count">
-          <div class="waitlist-avatars">
-            <div class="waitlist-avatar">G</div>
-            <div class="waitlist-avatar">K</div>
-            <div class="waitlist-avatar">M</div>
-            <div class="waitlist-avatar">+</div>
-          </div>
-          &nbsp;<span id="waitlistNum">847</span> on the waitlist
-        </div>
-        <span>No spam. Ever.</span>
-      </div>
-    </div>
-
-    <div class="waitlist-success" id="waitlistSuccess">
-      <div class="success-icon">⬡</div>
-      <div class="success-title">You're on the list.</div>
-      <div class="success-pos" id="successPos">You're #<span id="posNum">848</span> in line</div>
-      <div style="font-family: var(--mono); font-size: 11px; color: var(--muted); margin-top: 4px;">
-        Refer friends to move up ↑
-      </div>
-      <div class="referral-box">
-        <div class="referral-link" id="referralLink">aox.vercel.app/?ref=</div>
-        <button class="referral-copy" onclick="copyRef()">COPY</button>
-      </div>
-    </div>
+  <!-- CTA Buttons -->
+  <div style="display:flex;gap:16px;animation:fadeUp 0.8s 0.5s ease both;">
+    <a href="/marketplace.html" style="background:var(--orange);border:none;padding:14px 32px;font-family:var(--mono);font-size:12px;font-weight:700;color:#080808;text-decoration:none;letter-spacing:0.05em;text-transform:uppercase;transition:all 0.2s;" onmouseover="this.style.background='#f9a94a'" onmouseout="this.style.background='var(--orange)'">Enter Marketplace →</a>
+    <a href="/aox.skill.md" style="background:none;border:1px solid var(--orange);padding:14px 32px;font-family:var(--mono);font-size:12px;color:var(--orange);text-decoration:none;letter-spacing:0.05em;text-transform:uppercase;transition:all 0.2s;" onmouseover="this.style.background='var(--orange-dim)'" onmouseout="this.style.background='none'">Agent Skill ↗</a>
   </div>
 </section>
 
