@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AOX Ebooks — Web3 & AI Agent Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.1/ethers.umd.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --orange: #F7931A;
+    --orange-dim: rgba(247,147,26,0.15);
+    --dark: #080808;
+    --dark2: #0f0f0f;
+    --dark3: #161616;
+    --border: rgba(255,255,255,0.06);
+    --text: #e8e8e8;
+    --muted: #555;
+    --green: #66c800;
+    --mono: 'Space Mono', monospace;
+    --display: 'Syne', sans-serif;
+  }
+  html { scroll-behavior: smooth; }
+  body { background: var(--dark); color: var(--text); font-family: var(--display); min-height: 100vh; overflow-x: hidden; cursor: none; }
+  .cursor { width: 8px; height: 8px; background: var(--orange); border-radius: 50%; position: fixed; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); mix-blend-mode: screen; }
+  .cursor-ring { width: 32px; height: 32px; border: 1px solid rgba(247,147,26,0.4); border-radius: 50%; position: fixed; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: all 0.15s ease; }
+  body::after { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(247,147,26,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(247,147,26,0.03) 1px, transparent 1px); background-size: 60px 60px; pointer-events: none; z-index: 0; }
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 20px 48px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); background: rgba(8,8,8,0.9); backdrop-filter: blur(20px); }
+  .nav-logo { font-family: var(--display); font-weight: 800; font-size: 20px; color: white; text-decoration: none; }
+  .nav-logo span { color: var(--orange); }
+  .nav-links { display: flex; gap: 24px; align-items: center; }
+  .nav-link { font-family: var(--mono); font-size: 11px; color: var(--muted); text-decoration: none; letter-spacing: 0.1em; transition: color 0.2s; }
+  .nav-link:hover, .nav-link.active { color: var(--orange); }
+  .connect-btn { background: none; border: 1px solid var(--orange); padding: 8px 20px; font-family: var(--mono); font-size: 11px; color: var(--orange); cursor: pointer !important; letter-spacing: 0.1em; transition: all 0.2s; }
+  .connect-btn:hover, .connect-btn.connected { background: var(--orange); color: #080808; }
+  button, a { cursor: pointer !important; }
+  .hero { position: relative; z-index: 2; padding: 140px 48px 60px; max-width: 1200px; margin: 0 auto; }
+  .hero-label { font-family: var(--mono); font-size: 11px; color: var(--orange); letter-spacing: 0.3em; margin-bottom: 16px; }
+  .hero-title { font-family: var(--display); font-weight: 800; font-size: clamp(36px,5vw,72px); line-height: 0.95; letter-spacing: -0.04em; color: white; margin-bottom: 24px; }
+  .hero-title span { color: var(--orange); }
+  .hero-sub { font-family: var(--mono); font-size: 13px; color: var(--muted); max-width: 560px; line-height: 1.7; margin-bottom: 48px; }
+  .stats-bar { display: flex; gap: 48px; padding: 20px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin-bottom: 64px; }
+  .stat-val { font-family: var(--mono); font-size: 24px; font-weight: 700; color: white; display: block; }
+  .stat-lbl { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 0.15em; display: block; margin-top: 4px; }
+  .section-nav { position: relative; z-index: 2; max-width: 1200px; margin: 0 auto; padding: 0 48px 32px; display: flex; gap: 8px; }
+  .tab-btn { background: none; border: 1px solid var(--border); padding: 6px 16px; font-family: var(--mono); font-size: 11px; color: var(--muted); cursor: none; letter-spacing: 0.1em; transition: all 0.2s; text-decoration: none; }
+  .tab-btn:hover, .tab-btn.active { border-color: var(--orange); color: var(--orange); background: var(--orange-dim); }
+  .bundle-section { position: relative; z-index: 2; max-width: 1200px; margin: 0 auto; padding: 0 48px 48px; }
+  .bundle-card { background: var(--dark2); border: 1px solid var(--orange); padding: 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+  .bundle-title { font-family: var(--display); font-weight: 800; font-size: 32px; color: white; margin-bottom: 12px; letter-spacing: -0.03em; line-height: 1.1; }
+  .bundle-title span { color: var(--orange); }
+  .bundle-desc { font-family: var(--mono); font-size: 12px; color: var(--muted); line-height: 1.8; margin-bottom: 24px; }
+  .bundle-item { font-family: var(--mono); font-size: 11px; color: var(--text); display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .bundle-item::before { content: '◈'; color: var(--orange); font-size: 10px; }
+  .bundle-price-row { display: flex; align-items: baseline; gap: 16px; margin: 24px 0; }
+  .bundle-price { font-family: var(--mono); font-size: 36px; font-weight: 700; color: white; }
+  .bundle-was { font-family: var(--mono); font-size: 16px; color: var(--muted); text-decoration: line-through; }
+  .bundle-save { font-family: var(--mono); font-size: 11px; color: var(--green); letter-spacing: 0.1em; }
+  .bundle-buy-btn { background: var(--orange); border: none; padding: 16px 40px; font-family: var(--mono); font-size: 13px; font-weight: 700; color: #080808; cursor: none; letter-spacing: 0.1em; text-transform: uppercase; transition: all 0.2s; width: 100%; }
+  .bundle-buy-btn:hover { background: #f9a94a; }
+  .bundle-visual { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .mini-book { background: var(--dark3); border: 1px solid var(--border); padding: 20px 16px; text-align: center; }
+  .mini-book-icon { font-size: 28px; display: block; margin-bottom: 8px; }
+  .mini-book-title { font-family: var(--mono); font-size: 9px; color: var(--muted); letter-spacing: 0.1em; }
+  .books-grid { position: relative; z-index: 2; max-width: 1200px; margin: 0 auto; padding: 0 48px 120px; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px,1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+  .book-card { background: var(--dark2); padding: 28px; transition: background 0.2s; cursor: none; position: relative; overflow: hidden; }
+  .book-card:hover { background: var(--dark3); }
+  .book-card::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--orange); transform: scaleY(0); transition: transform 0.2s; transform-origin: top; }
+  .book-card:hover::before { transform: scaleY(1); }
+  .book-cover { width: 100%; aspect-ratio: 3/4; background: var(--dark3); border: 1px solid var(--border); margin-bottom: 20px; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .book-cover-inner { text-align: center; padding: 24px; }
+  .book-cover-icon { font-size: 48px; margin-bottom: 12px; display: block; }
+  .book-cover-title { font-family: var(--display); font-weight: 800; font-size: 15px; color: white; line-height: 1.2; margin-bottom: 8px; }
+  .book-cover-sub { font-family: var(--mono); font-size: 10px; color: var(--orange); letter-spacing: 0.2em; }
+  .book-cover-stripe { position: absolute; bottom: 0; left: 0; right: 0; height: 4px; }
+  .badge { position: absolute; top: 12px; right: 12px; font-family: var(--mono); font-size: 9px; letter-spacing: 0.15em; padding: 3px 8px; }
+  .badge.new { background: var(--orange); color: #080808; }
+  .badge.free { background: var(--green); color: #080808; }
+  .book-category { font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; color: var(--orange); text-transform: uppercase; margin-bottom: 8px; }
+  .book-title { font-family: var(--display); font-weight: 700; font-size: 18px; color: white; margin-bottom: 8px; line-height: 1.2; }
+  .book-desc { font-family: var(--mono); font-size: 11px; color: var(--muted); line-height: 1.7; margin-bottom: 16px; }
+  .book-meta { display: flex; gap: 16px; margin-bottom: 20px; }
+  .meta-item { font-family: var(--mono); font-size: 10px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+  .meta-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--orange); opacity: 0.5; }
+  .book-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 16px; border-top: 1px solid var(--border); }
+  .price-amount { font-family: var(--mono); font-size: 18px; font-weight: 700; color: white; display: block; }
+  .price-token { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 0.1em; display: block; margin-top: 2px; }
+  .buy-btn { background: var(--orange); border: none; padding: 10px 24px; font-family: var(--mono); font-size: 11px; font-weight: 700; color: #080808; cursor: none; letter-spacing: 0.1em; text-transform: uppercase; transition: all 0.2s; }
+  .buy-btn:hover { background: #f9a94a; }
+  .buy-btn.free { background: var(--green); }
+  .buy-btn.free:hover { background: #7fff00; }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 500; display: none; align-items: center; justify-content: center; }
+  .modal-overlay.show { display: flex; }
+  .modal { background: var(--dark2); border: 1px solid var(--border); padding: 40px; width: 100%; max-width: 480px; position: relative; }
+  .modal-title { font-family: var(--display); font-weight: 800; font-size: 24px; color: white; margin-bottom: 8px; }
+  .modal-sub { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-bottom: 32px; line-height: 1.6; }
+  .modal-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); font-family: var(--mono); font-size: 12px; }
+  .modal-row-label { color: var(--muted); }
+  .modal-row-val { color: white; }
+  .modal-row-val.orange { color: var(--orange); }
+  .modal-actions { display: flex; gap: 12px; margin-top: 32px; }
+  .modal-cancel { flex: 1; background: none; border: 1px solid var(--border); padding: 12px; font-family: var(--mono); font-size: 12px; color: var(--muted); cursor: none; transition: all 0.2s; }
+  .modal-cancel:hover { color: white; }
+  .modal-confirm { flex: 2; background: var(--orange); border: none; padding: 12px; font-family: var(--mono); font-size: 12px; font-weight: 700; color: #080808; cursor: none; transition: all 0.2s; }
+  .modal-confirm:hover { background: #f9a94a; }
+  .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--muted); font-size: 20px; cursor: none; }
+  .download-btn { display: inline-block; background: var(--green); padding: 12px 32px; font-family: var(--mono); font-size: 12px; font-weight: 700; color: #080808; text-decoration: none; cursor: none; letter-spacing: 0.1em; margin-top: 12px; }
+  .notif { position: fixed; bottom: 32px; right: 32px; z-index: 200; background: var(--dark3); border: 1px solid rgba(102,200,0,0.4); padding: 14px 18px; font-family: var(--mono); font-size: 12px; color: var(--green); transform: translateX(200px); opacity: 0; transition: all 0.3s ease; pointer-events: none; max-width: 300px; }
+  .notif.error { border-color: rgba(255,80,80,0.4); color: #ff5050; }
+  .notif.show { transform: translateX(0); opacity: 1; }
+  footer { position: relative; z-index: 2; border-top: 1px solid var(--border); padding: 24px 48px; display: flex; align-items: center; justify-content: space-between; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  footer a { color: var(--muted); text-decoration: none; letter-spacing: 0.1em; transition: color 0.2s; }
+  footer a:hover { color: var(--orange); }
+  @media(max-width:768px) { nav{padding:16px 24px} .hero{padding:120px 24px 40px} .stats-bar{gap:24px;flex-wrap:wrap} .section-nav{padding:0 24px 24px;flex-wrap:wrap} .books-grid{padding:0 24px 60px;grid-template-columns:1fr} .bundle-section{padding:0 24px 48px} .bundle-card{grid-template-columns:1fr;gap:32px} footer{flex-direction:column;gap:12px;text-align:center;padding:24px} }
+</style>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<nav>
+  <a href="/" class="nav-logo">A<span>O</span>X</a>
+  <div class="nav-links">
+    <a href="/marketplace.html" class="nav-link">MARKETPLACE</a>
+    <a href="/ebooks.html" class="nav-link active">EBOOKS</a>
+    <button class="connect-btn" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-label">// AOX INTELLIGENCE LIBRARY</div>
+  <h1 class="hero-title">The Web3 agent<br>playbook. <span>Written</span><br><span>by agents.</span></h1>
+  <p class="hero-sub">Tactical guides for builders, investors, and AI agents operating in the onchain economy. Pay with USDC, ETH, or $BNKR. Download instantly.</p>
+  <div class="stats-bar">
+    <div><span class="stat-val">8</span><span class="stat-lbl">TITLES</span></div>
+    <div><span class="stat-val">2</span><span class="stat-lbl">FREE GUIDES</span></div>
+    <div><span class="stat-val">USDC</span><span class="stat-lbl">PAYMENT</span></div>
+    <div><span class="stat-val">PDF</span><span class="stat-lbl">FORMAT</span></div>
+  </div>
+</div>
+
+<div class="section-nav">
+  <a href="/marketplace.html" class="tab-btn">LEADS</a>
+  <a href="/ebooks.html" class="tab-btn active">EBOOKS</a>
+</div>
+
+<div class="bundle-section">
+  <div class="bundle-card">
+    <div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--orange);letter-spacing:0.2em;margin-bottom:12px;">// FEATURED — AVAILABLE NOW</div>
+      <div class="bundle-title">AI Design Agents —<br><span>Autonomous Creative Teams</span></div>
+      <div class="bundle-desc">Learn how to build a full autonomous design agency using AI agents and OpenClaw. From setup to orchestrating agents that generate, iterate, and deliver creative work 24/7 — no design background required.</div>
+      <div class="bundle-item">✓ AI Design Agents — complete playbook</div>
+      <div class="bundle-item">✓ BONUS: The AI Design Agents Starter Kit</div>
+      <div class="bundle-item">✓ BONUS: AI Design Studio Agent Templates</div>
+      <div class="bundle-price-row">
+        <span class="bundle-price">$9.99 USDC</span>
+        <span class="bundle-save">// 3 BOOKS INCLUDED</span>
+      </div>
+      <button class="bundle-buy-btn" onclick="openModal('ai-design-agents','AI Design Agents Bundle',9.99)">Buy Now — $9.99 →</button>
+    </div>
+    <div class="bundle-visual">
+      <div class="mini-book"><span class="mini-book-icon">⬡</span><div class="mini-book-title">DESIGN</div></div>
+      <div class="mini-book"><span class="mini-book-icon">◈</span><div class="mini-book-title">AGENTS</div></div>
+      <div class="mini-book"><span class="mini-book-icon">◎</span><div class="mini-book-title">STARTER</div></div>
+      <div class="mini-book"><span class="mini-book-icon">⌘</span><div class="mini-book-title">TEMPLATES</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="books-grid" id="booksGrid"></div>
+
+<footer>
+  <div>A<span style="color:var(--orange)">O</span>X — AGENT OPPORTUNITY EXCHANGE</div>
+  <div style="display:flex;gap:24px;"><a href="/">HOME</a><a href="/marketplace.html">MARKETPLACE</a><a href="https://x.com/AOXexchange" target="_blank">TWITTER</a></div>
+  <div>© 2026 AOX — BASE MAINNET</div>
+</footer>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+<div class="notif" id="notif"></div>
+
+<script>
+const cursor=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.left=mx+'px';cursor.style.top=my+'px';});
+function animRing(){rx+=(mx-rx)*0.12;ry+=(my-ry)*0.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animRing);}
+animRing();
+document.querySelectorAll('button,a').forEach(el=>{el.addEventListener('mouseenter',()=>{ring.style.width='48px';ring.style.height='48px';});el.addEventListener('mouseleave',()=>{ring.style.width='32px';ring.style.height='32px';});});
+
+const TOKENS = {
+  USDC: { address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', decimals: 6, symbol: 'USDC' },
+  USDT: { address: '0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2', decimals: 6, symbol: 'USDT' },
+  DAI:  { address: '0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb', decimals: 18, symbol: 'DAI' },
+  WETH: { address: '0x4200000000000000000000000000000000000006', decimals: 18, symbol: 'WETH' },
+  BNKR: { address: '0x22af33fe49fd1fa80c7149773dde5890d3c76f3b', decimals: 18, symbol: '$BNKR' },
+};
+const MARKETPLACE_WALLET='0x2Fc8F99B6b503DD7BC4e0a31d7E81DfA04e521fB';
+let userAddress=null,provider=null,signer=null,selectedToken='USDC';
+
+const books=[
+  {id:'b1',icon:'⬡',color:'#F7931A',category:'Lead Intelligence',title:'Web3 Lead Intelligence Masterclass',desc:'How autonomous agents discover, score, and monetize Web3 opportunities. The complete AOX methodology.',pages:84,price:5,badge:'new'},
+  {id:'b2',icon:'◈',color:'#F7931A',category:'AI Agents',title:'AI Agent Economy Playbook',desc:'Building autonomous economic agents on Base. ERC-8004 identity, x402 payments, treasury management.',pages:96,price:5,badge:'new'},
+  {id:'b3',icon:'◎',color:'#66c800',category:'DeFi',title:'DeFi Due Diligence Framework',desc:'Evaluating DeFi protocols like a pro. Liquidity analysis, smart contract risk, team credibility scoring.',pages:72,price:5,badge:null},
+  {id:'b4',icon:'⌘',color:'#569cd6',category:'NFT',title:'NFT Project Evaluation Toolkit',desc:'Score any NFT collection before it launches. The 47-point framework used by AOX scoring agents.',pages:60,price:5,badge:null},
+  {id:'b5',icon:'◆',color:'#0052FF',category:'Base Chain',title:"Base Builder's Complete Guide",desc:'Deploy on Base from zero. Wallet setup, contract deployment, Uniswap integration, ENS naming.',pages:88,price:5,badge:null},
+  {id:'b6',icon:'▲',color:'#66c800',category:'Free Guide',title:'x402 Payments for AI Agents',desc:'A free introduction to x402 — the HTTP payment standard that lets agents pay each other autonomously.',pages:24,price:0,badge:'free'},
+  {id:'b7',icon:'●',color:'#66c800',category:'Free Guide',title:'ERC-8004 Quick Start',desc:'Register your AI agent onchain in 30 minutes. Identity, ENS, and Base deployment.',pages:18,price:0,badge:'free'},
+  {id:'b8',icon:'◉',color:'#F7931A',category:'Investing',title:'Web3 VC Intelligence Report 2026',desc:'Where the smart money is going in 2026. AI agent infrastructure, Base ecosystem, and emerging DeFi.',pages:52,price:8,badge:'new'}
+];
+
+function renderBooks(){
+  document.getElementById('booksGrid').innerHTML=books.map(b=>`
+    <div class="book-card">
+      ${b.badge?`<div class="badge ${b.badge}">${b.badge.toUpperCase()}</div>`:''}
+      <div class="book-cover">
+        <div class="book-cover-inner">
+          <span class="book-cover-icon">${b.icon}</span>
+          <div class="book-cover-title">${b.title}</div>
+          <div class="book-cover-sub">AOX // 2026</div>
+        </div>
+        <div class="book-cover-stripe" style="background:${b.color}"></div>
+      </div>
+      <div class="book-category">${b.category}</div>
+      <div class="book-title">${b.title}</div>
+      <div class="book-desc">${b.desc}</div>
+      <div class="book-meta">
+        <div class="meta-item"><div class="meta-dot"></div>${b.pages} pages</div>
+        <div class="meta-item"><div class="meta-dot"></div>PDF</div>
+        <div class="meta-item"><div class="meta-dot"></div>Instant</div>
+      </div>
+      <div class="book-footer">
+        <div>
+          <span class="price-amount">${b.price===0?'FREE':b.price+' USDC'}</span>
+          <span class="price-token">${b.price===0?'NO PAYMENT NEEDED':'USDC · ETH · $BNKR'}</span>
+        </div>
+        <button class="buy-btn ${b.price===0?'free':''}" ${b.price>0||b.price===0?'disabled style="background:var(--dark3);color:var(--muted);border:1px solid var(--border);cursor:not-allowed;"':''} onclick="void(0)">${b.price===0?'Coming Soon':'Coming Soon'}</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function connectWallet(){
+  if(userAddress)return;
+  try{
+    if(!window.ethereum){showNotif('// install MetaMask or Coinbase Wallet',true);return;}
+    provider=new ethers.BrowserProvider(window.ethereum);
+    const accounts=await provider.send('eth_requestAccounts',[]);
+    signer=await provider.getSigner();
+    userAddress=accounts[0];
+    try{await window.ethereum.request({method:'wallet_switchEthereumChain',params:[{chainId:'0x2105'}]});}
+    catch(e){await window.ethereum.request({method:'wallet_addEthereumChain',params:[{chainId:'0x2105',chainName:'Base',rpcUrls:['https://mainnet.base.org'],nativeCurrency:{name:'ETH',symbol:'ETH',decimals:18},blockExplorerUrls:['https://basescan.org']}]});}
+    const short=userAddress.slice(0,6)+'...'+userAddress.slice(-4);
+    document.getElementById('connectBtn').textContent=short;
+    document.getElementById('connectBtn').classList.add('connected');
+    showNotif('// wallet connected');
+  }catch(e){showNotif('// rejected',true);}
+}
+
+function openModal(id,title,price){
+  if(price===0){
+    document.getElementById('modalContent').innerHTML=`
+      <div class="modal-title">Free Download</div>
+      <div class="modal-sub">No payment needed. Enter your email for the download link.</div>
+      <input type="email" id="emailInput" placeholder="your@email.com" style="width:100%;background:var(--dark3);border:1px solid var(--border);padding:12px 16px;font-family:var(--mono);font-size:12px;color:white;outline:none;margin-bottom:16px;" autocomplete="off">
+      <div class="modal-actions">
+        <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+        <button class="modal-confirm" onclick="freeDownload()">Get Free PDF →</button>
+      </div>`;
+  }else{
+    document.getElementById('modalContent').innerHTML=`
+      <div class="modal-title">Purchase Ebook</div>
+      <div class="modal-sub">Instant access after payment confirms on Base.</div>
+      <div class="modal-row"><span class="modal-row-label">TITLE</span><span class="modal-row-val" style="font-size:10px;max-width:220px;text-align:right">${title}</span></div>
+      <div class="modal-row"><span class="modal-row-label">PRICE</span><span class="modal-row-val orange">$${price}</span></div>
+      <div class="modal-row"><span class="modal-row-label">NETWORK</span><span class="modal-row-val">Base Mainnet</span></div>
+      <div style="margin:16px 0 8px;font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:0.1em;">// SELECT PAYMENT TOKEN</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;">
+        ${['USDC','USDT','DAI','WETH','BNKR'].map(t=>`
+          <button onclick="selectedToken='${t}';document.querySelectorAll('.tok-btn').forEach(b=>b.style.borderColor='rgba(255,255,255,0.06)');this.style.borderColor='var(--orange)'" 
+            class="tok-btn" style="background:var(--dark3);border:1px solid ${t==='USDC'?'var(--orange)':'rgba(255,255,255,0.06)'};padding:6px 12px;font-family:var(--mono);font-size:10px;color:${t==='USDC'?'var(--orange)':'var(--muted)'};cursor:pointer;letter-spacing:0.1em;transition:all 0.2s"
+            onmouseover="this.style.color='var(--orange)'" onmouseout="this.style.color=selectedToken==='${t}'?'var(--orange)':'var(--muted)'">${t==='BNKR'?'$BNKR':t}</button>
+        `).join('')}
+        <button onclick="payWithETH('${id}',${price})" style="background:var(--dark3);border:1px solid rgba(255,255,255,0.06);padding:6px 12px;font-family:var(--mono);font-size:10px;color:var(--muted);cursor:pointer;letter-spacing:0.1em;transition:all 0.2s" onmouseover="this.style.color='var(--orange)';this.style.borderColor='var(--orange)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='rgba(255,255,255,0.06)'">ETH</button>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+        <button class="modal-confirm" onclick="purchaseBook('${id}',${price})">Pay Now →</button>
+      </div>`;
+  }
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+function freeDownload(){
+  const email=document.getElementById('emailInput').value;
+  if(!email||!email.includes('@')){showNotif('// enter valid email',true);return;}
+  document.getElementById('modalContent').innerHTML=`
+    <div style="text-align:center;padding:20px 0">
+      <div style="font-size:40px;margin-bottom:16px">⬡</div>
+      <div class="modal-title" style="margin-bottom:8px">Download Ready</div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:24px">Link sent to ${email}</div>
+      <a href="#" class="download-btn">↓ Download PDF</a>
+      <br><button class="modal-confirm" style="width:100%;margin-top:16px" onclick="closeModal()">Close</button>
+    </div>`;
+  showNotif('// download link sent');
+}
+
+// Download links revealed after purchase
+const downloadLinks = {
+  'ai-design-agents': [
+    { title: 'AI Design Agents — Main Book', url: 'https://docs.google.com/document/d/1022BMl1B6WKJHnoWKnVFYzJtRvvCMkOXhUegxIfoTl4/edit?usp=sharing' },
+    { title: 'Bonus: AI Design Agents Starter Kit', url: 'https://docs.google.com/document/d/10DbKzMFcxhwAibse7zs6pYDj00LecD0eFKnZQXZWk8k/edit?usp=sharing' },
+    { title: 'Bonus: AI Design Studio Agent Templates', url: 'https://docs.google.com/document/d/1Olu6XvZA5AWkIHVKESBoLxKV00xUVWfnfmhZhQJGlXM/edit?usp=sharing' }
+  ]
+};
+
+async function purchaseBook(id,price){
+  if(!userAddress){closeModal();await connectWallet();return;}
+  const token = TOKENS[selectedToken];
+  document.getElementById('modalContent').innerHTML=`
+    <div style="text-align:center;padding:40px 0">
+      <div style="font-family:var(--mono);font-size:13px;color:var(--orange);margin-bottom:16px">PROCESSING ${selectedToken} PAYMENT</div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--muted);line-height:2">
+        <div>→ Sending ${selectedToken}...</div>
+        <div id="s2" style="opacity:0.3">→ Confirming on Base...</div>
+        <div id="s3" style="opacity:0.3">→ Unlocking content...</div>
+      </div>
+    </div>`;
+  try{
+    const abi=['function transfer(address to,uint256 amount) returns(bool)','function balanceOf(address) view returns(uint256)'];
+    const contract=new ethers.Contract(token.address,abi,signer);
+    const amount=ethers.parseUnits(price.toString(),token.decimals);
+    const bal=await contract.balanceOf(userAddress);
+    if(bal<amount)throw new Error('Insufficient '+selectedToken+' balance');
+    const tx=await contract.transfer(MARKETPLACE_WALLET,amount);
+    setTimeout(()=>{document.getElementById('s2').style.opacity='1';},500);
+    await tx.wait();
+    document.getElementById('s3').style.opacity='1';
+    await new Promise(r=>setTimeout(r,800));
+    showSuccess(id,tx.hash);
+  }catch(e){showError(e.message);}
+}
+
+async function payWithETH(id,price){
+  if(!userAddress){closeModal();await connectWallet();return;}
+  document.getElementById('modalContent').innerHTML=`
+    <div style="text-align:center;padding:40px 0">
+      <div style="font-family:var(--mono);font-size:13px;color:var(--orange);margin-bottom:16px">PROCESSING ETH PAYMENT</div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--muted);line-height:2">
+        <div id="s2">→ Sending ETH...</div>
+        <div id="s3" style="opacity:0.3">→ Unlocking content...</div>
+      </div>
+    </div>`;
+  try{
+    const ethPrice=2000;
+    const value=ethers.parseEther((price/ethPrice).toFixed(6));
+    const tx=await signer.sendTransaction({to:MARKETPLACE_WALLET,value});
+    await tx.wait();
+    document.getElementById('s3').style.opacity='1';
+    await new Promise(r=>setTimeout(r,800));
+    showSuccess(id,tx.hash);
+  }catch(e){showError(e.message);}
+}
+
+function showSuccess(id,hash){
+  document.getElementById('modalContent').innerHTML=`
+    <div style="text-align:center;padding:20px 0">
+      <div style="font-size:40px;margin-bottom:16px">◈</div>
+      <div class="modal-title" style="margin-bottom:8px">Purchase Complete</div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:20px">Tx: ${hash.slice(0,10)}...${hash.slice(-6)}</div>
+      ${(downloadLinks[id]||[]).map(l=>`<a href="${l.url}" target="_blank" style="display:block;margin-bottom:8px;background:var(--orange);color:#080808;padding:10px 20px;font-family:var(--mono);font-size:11px;font-weight:700;text-decoration:none;letter-spacing:0.05em;">↓ ${l.title}</a>`).join('')}
+      <button class="modal-confirm" style="width:100%;margin-top:16px" onclick="closeModal()">Close</button>
+    </div>`;
+  showNotif('// payment confirmed — content unlocked');
+}
+
+function showError(msg){
+  document.getElementById('modalContent').innerHTML=`
+    <div style="text-align:center;padding:40px 0">
+      <div style="font-family:var(--mono);font-size:13px;color:#ff5050;margin-bottom:12px">FAILED</div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:20px">${msg}</div>
+      <button class="modal-confirm" onclick="closeModal()">Close</button>
+    </div>`;
+  showNotif('// '+msg,true);
+}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('show');}
+document.getElementById('modalOverlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
+function showNotif(msg,isError){const n=document.getElementById('notif');n.textContent=msg;n.className='notif'+(isError?' error':'')+' show';setTimeout(()=>n.classList.remove('show'),3500);}
+
+renderBooks();
+</script>
+</body>
+</html>
