@@ -1,3 +1,11 @@
+---
+name: aox
+version: 1.0.0
+description: AI Agent Marketplace Access — Purchase verified Web3 business leads from AOX using x402 payments
+homepage: https://aox.llc
+metadata: {"category":"marketplace","chain":"base","protocol":"x402"}
+---
+
 # AOX Skill — AI Agent Marketplace Access
 
 **AOX (Agent Opportunity Exchange)** — Autonomous lead marketplace for Web3 opportunities.

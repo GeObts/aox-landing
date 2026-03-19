@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AOX Skill — AI Agent Marketplace Access</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #0a0a0f;
+            color: #e0e0e0;
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Droid Sans Mono', monospace;
+            font-size: 14px;
+            line-height: 1.7;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            border-bottom: 1px solid #2a2a3a;
+            padding-bottom: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            color: #00d4ff;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+        }
+        
+        .header .subtitle {
+            color: #888;
+            font-size: 13px;
+        }
+        
+        .metadata {
+            background: #12121a;
+            border: 1px solid #2a2a3a;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .metadata-row {
+            display: flex;
+            margin-bottom: 8px;
+        }
+        
+        .metadata-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .metadata-key {
+            color: #ff6b6b;
+            min-width: 120px;
+            font-weight: 500;
+        }
+        
+        .metadata-value {
+            color: #a0d468;
+        }
+        
+        h2 {
+            color: #00d4ff;
+            font-size: 18px;
+            font-weight: 600;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #2a2a3a;
+        }
+        
+        h3 {
+            color: #ffd93d;
+            font-size: 15px;
+            font-weight: 600;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        
+        p {
+            margin-bottom: 16px;
+            color: #c0c0c0;
+        }
+        
+        strong {
+            color: #fff;
+            font-weight: 600;
+        }
+        
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 20px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+            color: #c0c0c0;
+        }
+        
+        li::marker {
+            color: #00d4ff;
+        }
+        
+        code {
+            background: #1a1a25;
+            color: #ff79c6;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 13px;
+        }
+        
+        pre {
+            background: #12121a;
+            border: 1px solid #2a2a3a;
+            border-radius: 6px;
+            padding: 20px;
+            overflow-x: auto;
+            margin-bottom: 24px;
+        }
+        
+        pre code {
+            background: transparent;
+            color: #a0d468;
+            padding: 0;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+            font-size: 13px;
+        }
+        
+        th {
+            background: #1a1a25;
+            color: #00d4ff;
+            text-align: left;
+            padding: 12px 16px;
+            border-bottom: 2px solid #2a2a3a;
+            font-weight: 600;
+        }
+        
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #2a2a3a;
+            color: #c0c0c0;
+        }
+        
+        tr:hover td {
+            background: #12121a;
+        }
+        
+        hr {
+            border: none;
+            border-top: 1px solid #2a2a3a;
+            margin: 40px 0;
+        }
+        
+        .endpoint {
+            color: #ff6b6b;
+            font-weight: 500;
+        }
+        
+        .highlight {
+            color: #ffd93d;
+        }
+        
+        .success {
+            color: #a0d468;
+        }
+        
+        a {
+            color: #00d4ff;
+            text-decoration: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        .footer {
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid #2a2a3a;
+            color: #666;
+            font-size: 12px;
+            text-align: center;
+        }
+        
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #0a0a0f;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #2a2a3a;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3a3a4a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>AOX Skill — AI Agent Marketplace Access</h1>
+            <div class="subtitle">Autonomous lead marketplace for Web3 opportunities</div>
+        </div>
+        
+        <div class="metadata">
+            <div class="metadata-row">
+                <span class="metadata-key">name:</span>
+                <span class="metadata-value">aox</span>
+            </div>
+            <div class="metadata-row">
+                <span class="metadata-key">version:</span>
+                <span class="metadata-value">1.0.0</span>
+            </div>
+            <div class="metadata-row">
+                <span class="metadata-key">description:</span>
+                <span class="metadata-value">AI Agent Marketplace Access — Purchase verified Web3 business leads from AOX using x402 payments</span>
+            </div>
+            <div class="metadata-row">
+                <span class="metadata-key">homepage:</span>
+                <span class="metadata-value">https://aox.llc</span>
+            </div>
+            <div class="metadata-row">
+                <span class="metadata-key">metadata:</span>
+                <span class="metadata-value">{"category":"marketplace","chain":"base","protocol":"x402"}</span>
+            </div>
+        </div>
+
+        <p><strong>AOX (Agent Opportunity Exchange)</strong> — Autonomous lead marketplace for Web3 opportunities.</p>
+        
+        <p>This skill enables AI agents to discover, evaluate, and purchase verified business leads from the AOX marketplace using the x402 payment protocol.</p>
+
+        <h2>What is AOX?</h2>
+        
+        <p>AOX is a fully autonomous multi-agent system that discovers, verifies, and monetizes Web3 business opportunities:</p>
+        
+        <ul>
+            <li><strong>Research Agent</strong> — Discovers signals on Base blockchain and Web3 sources</li>
+            <li><strong>Scoring Agent</strong> — Evaluates lead quality using private AI inference</li>
+            <li><strong>Marketplace Agent</strong> — Lists verified opportunities for buyers</li>
+            <li><strong>Settlement Agent</strong> — Handles payments, swaps, and USDC treasury</li>
+        </ul>
+        
+        <p>All transactions settle on-chain. Every action is logged and verifiable.</p>
+
+        <h2>x402 Endpoint</h2>
+        
+        <p><strong>Base URL:</strong> <code>http://100.65.229.34:3200</code></p>
+        
+        <h3>Get Lead (with x402 payment)</h3>
+        
+        <pre><code>GET /lead?id={lead_id}</code></pre>
+        
+        <p><strong>Headers Required:</strong></p>
+        <ul>
+            <li><code>X-Payment-Token</code>: Payment authorization via x402</li>
+            <li><code>Content-Type: application/json</code></li>
+        </ul>
+        
+        <p><strong>Response:</strong> Lead contact data delivered as JSON after successful payment verification.</p>
+
+        <h2>Payment Configuration</h2>
+        
+        <table>
+            <tr>
+                <th>Parameter</th>
+                <th>Value</th>
+            </tr>
+            <tr>
+                <td><strong>Network</strong></td>
+                <td>Base Mainnet</td>
+            </tr>
+            <tr>
+                <td><strong>Chain ID</strong></td>
+                <td>8453</td>
+            </tr>
+            <tr>
+                <td><strong>Marketplace Wallet</strong></td>
+                <td><code>0x2Fc8F99B6b503DD7BC4e0a31d7E81DfA04e521fB</code></td>
+            </tr>
+            <tr>
+                <td><strong>Protocol</strong></td>
+                <td>x402 (ERC-8004 compatible)</td>
+            </tr>
+        </table>
+        
+        <h3>Accepted Tokens</h3>
+        
+        <table>
+            <tr>
+                <th>Token</th>
+                <th>Contract Address</th>
+                <th>Decimals</th>
+            </tr>
+            <tr>
+                <td><strong>USDC</strong></td>
+                <td><code>0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913</code></td>
+                <td>6</td>
+            </tr>
+            <tr>
+                <td><strong>ETH</strong></td>
+                <td>Native</td>
+                <td>18</td>
+            </tr>
+            <tr>
+                <td><strong>WETH</strong></td>
+                <td><code>0x4200000000000000000000000000000000000006</code></td>
+                <td>18</td>
+            </tr>
+            <tr>
+                <td><strong>$BNKR</strong></td>
+                <td><code>0x22d...</code> (Base native)</td>
+                <td>18</td>
+            </tr>
+        </table>
+
+        <h2>Lead Pricing</h2>
+        
+        <p>Pricing is <strong>dynamic</strong> — displayed at time of purchase based on:</p>
+        <ul>
+            <li>Lead quality score (70-100)</li>
+            <li>Category (DeFi, NFT, DAO, Infrastructure)</li>
+            <li>Chain (Base, Ethereum, etc.)</li>
+            <li>Contact richness (verified channels)</li>
+        </ul>
+        
+        <p><strong>Typical Range:</strong> 20-100+ USDC equivalent</p>
+
+        <h2>Agent Integration</h2>
+        
+        <h3>1. Discover Leads</h3>
+        
+        <pre><code>// Query available leads
+const leads = await fetch('http://100.65.229.34:3200/leads?category=defi&min_score=80');</code></pre>
+        
+        <h3>2. Request Quote</h3>
+        
+        <pre><code>// Get pricing for specific lead
+const quote = await fetch('http://100.65.229.34:3200/quote?id=lead_123');
+// Returns: { price: "50", token: "USDC", expires_at: "..." }</code></pre>
+        
+        <h3>3. Execute Payment (x402)</h3>
+        
+        <pre><code>// Build x402 payment payload
+const payment = {
+  scheme: "x402",
+  network: "base",
+  chain_id: 8453,
+  token: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC
+  amount: "50000000", // 50 USDC (6 decimals)
+  recipient: "0x2Fc8F99B6b503DD7BC4e0a31d7E81DfA04e521fB",
+  nonce: Date.now(),
+  expires: Math.floor(Date.now() / 1000) + 300 // 5 min expiry
+};
+
+// Sign and send
+const response = await fetch(`http://100.65.229.34:3200/lead?id=lead_123`, {
+  method: 'GET',
+  headers: {
+    'X-Payment-Token': JSON.stringify(payment),
+    'Content-Type': 'application/json'
+  }
+});</code></pre>
+        
+        <h3>4. Receive Lead Data</h3>
+        
+        <pre><code>{
+  "lead_id": "lead_123",
+  "category": "defi",
+  "score": 87,
+  "chain": "base",
+  "contacts": {
+    "twitter": "@project",
+    "github": "org/repo",
+    "email": "founder@project.com",
+    "discord": "invite_link"
+  },
+  "signals": {
+    "contract_deployed": "0x...",
+    "liquidity_added": "2026-03-15",
+    "github_activity": "high"
+  },
+  "purchased_at": "2026-03-19T01:23:45Z",
+  "transaction_hash": "0x..."
+}</code></pre>
+
+        <h2>ERC-8004 Identity</h2>
+        
+        <p>AOX agents are registered on-chain via ERC-8004:</p>
+        
+        <table>
+            <tr>
+                <th>Agent</th>
+                <th>ENS</th>
+                <th>Wallet</th>
+                <th>Status</th>
+            </tr>
+            <tr>
+                <td>Marketplace</td>
+                <td><code>marketplace.aoxexchange.eth</code></td>
+                <td><code>0x2Fc8...21fB</code></td>
+                <td class="success">✅ Registered</td>
+            </tr>
+            <tr>
+                <td>Banker</td>
+                <td><code>banker.aoxexchange.eth</code></td>
+                <td><code>0x7e7f...3373</code></td>
+                <td class="success">✅ Registered</td>
+            </tr>
+            <tr>
+                <td>CEO (AOX)</td>
+                <td><code>ceo.aoxexchange.eth</code></td>
+                <td><code>0x0559...94D0</code></td>
+                <td class="success">✅ Active</td>
+            </tr>
+        </table>
+        
+        <p><strong>Registry:</strong> <code>0x8004a169fb4a3325136eb29fa0ceb6d2e539a432</code> (Base Mainnet)</p>
+
+        <h2>Security & Trust</h2>
+        
+        <ul>
+            <li>All payments verified on-chain before lead delivery</li>
+            <li>Lead data encrypted in transit</li>
+            <li>No lead details exposed before payment confirmation</li>
+            <li>Full transaction logging for audit</li>
+            <li>Rate limiting: 100 requests/minute per agent</li>
+        </ul>
+
+        <h2>Links</h2>
+        
+        <ul>
+            <li><strong>Website:</strong> <a href="https://aox.llc">https://aox.llc</a></li>
+            <li><strong>ENS:</strong> aoxexchange.eth</li>
+            <li><strong>Base:</strong> aoxceo.base.eth</li>
+            <li><strong>Twitter:</strong> @AOXexchange</li>
+            <li><strong>GitHub:</strong> GeObts</li>
+        </ul>
+
+        <hr>
+        
+        <p><strong>Built for The Synthesis Ethereum Agent Hackathon 2026</strong></p>
+
+        <div class="footer">
+            AOX — Autonomous Opportunity Exchange
+        </div>
+    </div>
+</body>
+</html>
